@@ -7,26 +7,26 @@ if ! docker images | grep -q "gsa\s*v0"; then
 else
     echo "Docker image gsa:v0 found."
 fi
-# make run
+make build-image
 
-image_folder=$1
-output_folder=$2
+parent_output_dir=$1
+bag_file_name=$2
 image_extension=$3
 seg_classes=$4
 
 image_extension=${image_extension:-"png"}
-seg_classes=${seg_classes:-"High-standing platforms, Ground, Humans"}
+seg_classes=${seg_classes:-"High-standing platforms,Ground,Humans"}
 
-cmd="image_folder=$image_folder && \
-output_folder=$output_folder && \
+cmd="parent_output_dir=$parent_output_dir && \
+bag_file_name=$bag_file_name && \
 image_extension=$image_extension && \
 seg_classes=\"$seg_classes\" && "
 
 cmd+="export HF_HOME=/tmp  && \
     cd Grounded-Segment-Anything/ && \
     exec python segment_images_batch.py \
-    --image_folder $image_folder \
-    --output_folder $output_folder \
+    --parent_output_dir $parent_output_dir \
+    --bag_file_name $bag_file_name \
     --image_extension $image_extension \
     --seg_classes \"$seg_classes\""
 
@@ -37,8 +37,7 @@ echo $cmd
 
 exec docker run \
     --gpus 1 \
-    -v $image_folder:$image_folder \
-    -v $output_folder:$output_folder \
+    -v $parent_output_dir:$parent_output_dir \
     --user $(id -u):$(id -g) \
     gsa:v0 \
     /bin/bash -c "$cmd"
