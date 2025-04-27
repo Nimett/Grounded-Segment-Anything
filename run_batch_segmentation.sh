@@ -7,7 +7,7 @@ if ! docker images | grep -q "gsa\s*v0"; then
 else
     echo "Docker image gsa:v0 found."
 fi
-make build-image
+# make build-image
 
 parent_output_dir=$1
 bag_file_name=$2
